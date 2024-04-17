@@ -15,12 +15,13 @@
 # 6. Izmantojot kodu no iepriekšēja piemēra (1_faker.py), izveido jaunu komandu /fakeperson, kura uzģenerē personas vārdu, uzvārdu ar telefona numuru, adresi un personas kodu
 # 
 # 7. Izmantojot kodu no iepriekšēja piemēra (2_chuck_norris.py), izveido jaunu komandu /chuck, kura uzģenerē jaunu joku par programmetājiem
-
+from faker import Faker
+fake = Faker()
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-
+import requests
 # izveido bota pieslēgumu Telegram
-app = ApplicationBuilder().token("YOUR_TOKEN").build()
+app = ApplicationBuilder().token("7112507583:AAGIDFfC-NsKjdeX_T1uj0_nOdvlps1oBas").build()
 
 # komanda /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -32,13 +33,21 @@ async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello", update.effective_user.first_name, " ", update.effective_user.last_name)
 
 # komanda /echo
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("I hear: " + update.message.text)
+async def fakeperson(update: Update, context: ContextTypes.DEFAULT_TYPE):
+     await update.message.reply_text(fake.name()  +fake.country_calling_code() + fake.phone_number()+ fake.address()+ fake.ssn())
+async def chuck(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    r = requests.get('https://api.chucknorris.io/jokes/random')
+    jokes = r.json()
+    await update.message.reply_text(jokes['value'])
 
 # savieno čata komandu ar funkciju
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("hello", hello))
 app.add_handler(CommandHandler("echo", echo))
+app.add_handler(CommandHandler("fakeperson", fakeperson))
+app.add_handler(CommandHandler("chuck", chuck))
 
 # sāk bota darbību
 app.run_polling()
